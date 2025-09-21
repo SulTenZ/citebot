@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { getToken } from './auth';
 
-const API_URL = '/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_URL,
