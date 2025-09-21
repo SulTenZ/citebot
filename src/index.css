@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4f46e5 0%, #7c3aed 100%);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.6);
+  }
+}
+
+/* Custom utility classes */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Glass effect utility */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Enhanced button hover effects */
+.btn-premium {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-premium:hover::before {
+  left: 100%;
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -12px rgba(99, 102, 241, 0.4);
+}
+
+/* Enhanced card hover effects */
+.card-premium {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-premium:hover::before {
+  opacity: 1;
+}
+
+.card-premium:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.25);
+}
+
+/* Toast customization */
+.Toaster__toast {
+  border-radius: 12px !important;
+  padding: 16px !important;
+  font-weight: 600 !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.Toaster__toast--success {
+  background: rgba(34, 197, 94, 0.9) !important;
+  color: white !important;
+}
+
+.Toaster__toast--error {
+  background: rgba(239, 68, 68, 0.9) !important;
+  color: white !important;
+}
+
+/* Body improvements */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+/* Enhanced focus states */
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+  outline: none;
+  ring: 4px;
+  ring-color: rgba(99, 102, 241, 0.3);
+}
+
+/* Loading animation */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.33);
+  }
+  40%, 50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+/* Premium gradient backgrounds */
+.bg-premium-1 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-premium-2 {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bg-premium-3 {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.bg-premium-4 {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
