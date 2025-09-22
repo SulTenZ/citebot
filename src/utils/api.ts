@@ -1,4 +1,4 @@
-// src/utils/api.ts - Update untuk mendukung keyword
+// src/utils/api.ts - Updated untuk mendukung author dan year
 import axios from 'axios';
 import { getToken } from './auth';
 
@@ -26,11 +26,14 @@ export const authAPI = {
 };
 
 export const documentsAPI = {
-  upload: (file: File, citationFormat: string, keyword: string) => {
+  // Updated function signature untuk mendukung author dan year
+  upload: (file: File, citationFormat: string, keyword: string, author: string, year: number) => {
     const formData = new FormData();
     formData.append('document', file);
     formData.append('citationFormat', citationFormat);
     formData.append('keyword', keyword);
+    formData.append('author', author);
+    formData.append('year', year.toString());
     return api.post('/documents/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });

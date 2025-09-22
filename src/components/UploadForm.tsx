@@ -1,6 +1,6 @@
 // src/components/UploadForm.tsx
 import { useState } from 'react';
-import { Upload, FileUp, Search, Bot, Sparkles, FileText, Zap } from 'lucide-react';
+import { Upload, FileUp, Search, Bot, Sparkles, FileText, Zap, User, Calendar } from 'lucide-react';
 import { documentsAPI } from '../utils/api';
 import { toast } from 'react-hot-toast';
 
@@ -14,6 +14,8 @@ export default function UploadForm({ onUploadSuccess, loading }: UploadFormProps
   const [citationFormat, setCitationFormat] = useState('APA');
   const [uploading, setUploading] = useState(false);
   const [keyword, setKeyword] = useState('');
+  const [author, setAuthor] = useState('');
+  const [year, setYear] = useState(new Date().getFullYear().toString());
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -39,15 +41,27 @@ export default function UploadForm({ onUploadSuccess, loading }: UploadFormProps
       return;
     }
 
+    if (!author.trim()) {
+      toast.error('Masukkan nama penulis');
+      return;
+    }
+
+    if (!year.trim() || isNaN(Number(year)) || Number(year) < 1900 || Number(year) > new Date().getFullYear() + 5) {
+      toast.error('Masukkan tahun yang valid');
+      return;
+    }
+
     setUploading(true);
     try {
-      const response = await documentsAPI.upload(file, citationFormat, keyword.trim());
+      const response = await documentsAPI.upload(file, citationFormat, keyword.trim(), author.trim(), Number(year));
       toast.success('File berhasil diupload!');
       onUploadSuccess(response.data.document.id, keyword.trim());
       
       // Reset form
       setFile(null);
       setKeyword('');
+      setAuthor('');
+      setYear(new Date().getFullYear().toString());
       const form = e.target as HTMLFormElement;
       form.reset();
     } catch (error: any) {
@@ -124,6 +138,51 @@ export default function UploadForm({ onUploadSuccess, loading }: UploadFormProps
           </div>
         </div>
 
+        {/* Author and Year Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Author Input */}
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-3">
+              👤 Nama Penulis/Author
+            </label>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-green-500 to-teal-500 p-2 rounded-lg">
+                <User className="text-white w-5 h-5" />
+              </div>
+              <input
+                type="text"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                placeholder="Contoh: Smith, J. D. atau Johnson, M."
+                className="w-full pl-16 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 bg-gray-50/50 hover:bg-white focus:bg-white text-lg"
+                disabled={uploading || loading}
+              />
+            </div>
+          </div>
+
+          {/* Year Input */}
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-3">
+              📅 Tahun Publikasi
+            </label>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-orange-500 to-red-500 p-2 rounded-lg">
+                <Calendar className="text-white w-5 h-5" />
+              </div>
+              <input
+                type="number"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                placeholder="2024"
+                min="1900"
+                max={new Date().getFullYear() + 5}
+                className="w-full pl-16 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-gray-50/50 hover:bg-white focus:bg-white text-lg"
+                disabled={uploading || loading}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Keyword Input Section */}
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-3">
@@ -177,12 +236,22 @@ export default function UploadForm({ onUploadSuccess, loading }: UploadFormProps
               </label>
             ))}
           </div>
+          <div className="mt-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200/50">
+            <div className="text-sm text-purple-700">
+              <span className="font-medium">Format yang akan digunakan:</span>
+              <div className="mt-1 text-xs">
+                {citationFormat === 'APA' && '• APA: Author, A. A. (Year). Title. Publisher.'}
+                {citationFormat === 'MLA' && '• MLA: Author. "Title." Publisher, Year.'}
+                {citationFormat === 'Chicago' && '• Chicago: Author. Title. Publisher, Year.'}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={!file || !keyword.trim() || uploading || loading}
+          disabled={!file || !keyword.trim() || !author.trim() || !year.trim() || uploading || loading}
           className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 text-white py-4 px-6 rounded-2xl hover:from-indigo-700 hover:via-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-bold text-lg shadow-2xl hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center relative overflow-hidden"
         >
           <div className="flex items-center relative z-10">

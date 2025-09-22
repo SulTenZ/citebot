@@ -11,12 +11,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors()); // Konfigurasi CORS bisa lebih sederhana karena originnya sama
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-// Vercel akan menangani routing, jadi kita langsung gunakan rutenya
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 
@@ -24,5 +23,12 @@ app.use('/api/documents', documentRoutes);
 app.get('/api/health', (req, res) => {
   res.json({ message: 'Backend server is running!' });
 });
+
+// Tambahkan kode ini untuk menjalankan server di environment lokal
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Backend server berjalan di http://localhost:${PORT}`);
+  });
+}
 
 export default app;
