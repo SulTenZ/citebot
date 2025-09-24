@@ -1,4 +1,4 @@
-// src/utils/api.ts - Updated untuk mendukung author dan year
+// src/utils/api.ts - Updated untuk mendukung author, year, dan sentence count
 import axios from 'axios';
 import { getToken } from './auth';
 
@@ -17,6 +17,15 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Type definitions untuk options parameter
+interface UploadOptions {
+  sentenceCount?: number;
+}
+
+interface ParaphraseOptions {
+  sentenceCount?: number;
+}
+
 export const authAPI = {
   register: (email: string, password: string) =>
     api.post('/auth/register', { email, password }),
@@ -26,14 +35,29 @@ export const authAPI = {
 };
 
 export const documentsAPI = {
-  // Updated function signature untuk mendukung author dan year
-  upload: (file: File, citationFormat: string, keyword: string, author: string, year: number) => {
+  // Updated function signature untuk mendukung author, year, dan sentence count
+  upload: (
+    file: File, 
+    citationFormat: string, 
+    keyword: string, 
+    author: string, 
+    year: number, 
+    options: UploadOptions = {}
+  ) => {
     const formData = new FormData();
     formData.append('document', file);
     formData.append('citationFormat', citationFormat);
     formData.append('keyword', keyword);
     formData.append('author', author);
     formData.append('year', year.toString());
+    
+    // Tambahkan sentence count ke additionalInfo jika ada
+    if (options.sentenceCount !== undefined) {
+      formData.append('additionalInfo', JSON.stringify({
+        sentenceCount: options.sentenceCount
+      }));
+    }
+    
     return api.post('/documents/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
@@ -44,6 +68,33 @@ export const documentsAPI = {
   
   getHistory: () =>
     api.get('/documents/history'),
+
+  // Updated function signature untuk mendukung sentence count
+  paraphraseText: (
+    originalText: string, 
+    citationFormat: string, 
+    keyword: string, 
+    author: string, 
+    year: number,
+    options: ParaphraseOptions = {}
+  ) => {
+    const payload: any = {
+      originalText,
+      citationFormat,
+      keyword,
+      author,
+      year
+    };
+    
+    // Tambahkan sentence count ke additionalInfo jika ada
+    if (options.sentenceCount !== undefined) {
+      payload.additionalInfo = {
+        sentenceCount: options.sentenceCount
+      };
+    }
+    
+    return api.post('/documents/paraphrase-text', payload);
+  },
 };
 
 export default api;

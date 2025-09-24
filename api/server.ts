@@ -1,4 +1,4 @@
-// 2. backend/server.ts
+// api/server.ts
 import dotenv from 'dotenv';
 dotenv.config();
 

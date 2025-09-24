@@ -1,6 +1,6 @@
 // src/components/UploadForm.tsx
 import { useState } from 'react';
-import { Upload, FileUp, Search, Bot, Sparkles, FileText, Zap, User, Calendar } from 'lucide-react';
+import { Upload, FileUp, Search, Bot, Sparkles, FileText, Zap, User, Calendar, Hash } from 'lucide-react';
 import { documentsAPI } from '../utils/api';
 import { toast } from 'react-hot-toast';
 
@@ -16,6 +16,7 @@ export default function UploadForm({ onUploadSuccess, loading }: UploadFormProps
   const [keyword, setKeyword] = useState('');
   const [author, setAuthor] = useState('');
   const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [sentenceCount, setSentenceCount] = useState('2');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -51,9 +52,23 @@ export default function UploadForm({ onUploadSuccess, loading }: UploadFormProps
       return;
     }
 
+    if (!sentenceCount || isNaN(Number(sentenceCount)) || Number(sentenceCount) < 1 || Number(sentenceCount) > 5) {
+      toast.error('Jumlah kalimat harus antara 1-5');
+      return;
+    }
+
     setUploading(true);
     try {
-      const response = await documentsAPI.upload(file, citationFormat, keyword.trim(), author.trim(), Number(year));
+      const response = await documentsAPI.upload(
+        file, 
+        citationFormat, 
+        keyword.trim(), 
+        author.trim(), 
+        Number(year),
+        {
+          sentenceCount: Number(sentenceCount)
+        }
+      );
       toast.success('File berhasil diupload!');
       onUploadSuccess(response.data.document.id, keyword.trim());
       
@@ -62,6 +77,7 @@ export default function UploadForm({ onUploadSuccess, loading }: UploadFormProps
       setKeyword('');
       setAuthor('');
       setYear(new Date().getFullYear().toString());
+      setSentenceCount('2');
       const form = e.target as HTMLFormElement;
       form.reset();
     } catch (error: any) {
@@ -183,29 +199,66 @@ export default function UploadForm({ onUploadSuccess, loading }: UploadFormProps
           </div>
         </div>
 
-        {/* Keyword Input Section */}
-        <div>
-          <label className="block text-sm font-bold text-gray-700 mb-3">
-            🔍 Kata Kunci Definisi
-          </label>
-          <div className="relative">
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-500 to-purple-500 p-2 rounded-lg">
-              <Search className="text-white w-5 h-5" />
+        {/* Keyword and Sentence Count Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Keyword Input */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-bold text-gray-700 mb-3">
+              🔍 Kata Kunci Definisi
+            </label>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-500 to-purple-500 p-2 rounded-lg">
+                <Search className="text-white w-5 h-5" />
+              </div>
+              <input
+                type="text"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                placeholder="Contoh: Machine Learning, React Native, Algoritma Genetika..."
+                className="w-full pl-16 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 bg-gray-50/50 hover:bg-white focus:bg-white text-lg"
+                disabled={uploading || loading}
+              />
             </div>
-            <input
-              type="text"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              placeholder="Contoh: Machine Learning, React Native, Algoritma Genetika..."
-              className="w-full pl-16 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 bg-gray-50/50 hover:bg-white focus:bg-white text-lg"
-              disabled={uploading || loading}
-            />
           </div>
-          <div className="mt-3 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200/50">
-            <div className="flex items-center text-sm text-blue-700">
-              <Zap className="w-4 h-4 mr-2" />
-              <span className="font-medium">AI akan mencari definisi kata kunci ini dari dokumen yang diupload</span>
+
+          {/* Sentence Count Input */}
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-3">
+              📝 Jumlah Kalimat Parafrase
+            </label>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-pink-500 to-rose-500 p-2 rounded-lg">
+                <Hash className="text-white w-5 h-5" />
+              </div>
+              <select
+                value={sentenceCount}
+                onChange={(e) => setSentenceCount(e.target.value)}
+                className="w-full pl-16 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-pink-500/20 focus:border-pink-500 transition-all duration-300 bg-gray-50/50 hover:bg-white focus:bg-white text-lg appearance-none cursor-pointer"
+                disabled={uploading || loading}
+              >
+                <option value="1">1 Kalimat</option>
+                <option value="2">2 Kalimat</option>
+                <option value="3">3 Kalimat</option>
+                <option value="4">4 Kalimat</option>
+                <option value="5">5 Kalimat</option>
+              </select>
+              {/* Custom dropdown arrow */}
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Info Alert for AI Processing */}
+        <div className="mt-3 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200/50">
+          <div className="flex items-center text-sm text-blue-700">
+            <Zap className="w-4 h-4 mr-2" />
+            <span className="font-medium">
+              AI akan mencari definisi kata kunci "{keyword || '[kata kunci]'}" dan memparafrase menjadi {sentenceCount} kalimat
+            </span>
           </div>
         </div>
 
